@@ -15,7 +15,8 @@ def run_simulation(script: str, initial_vars: dict, steps: int):
         # Inject current variable values into the script
         init_lines = []
         for k, v in current_vars.items():
-            init_lines.append(f"SET {k} = {v};")
+            # use repr to preserve string quoting and booleans/numbers correctly
+            init_lines.append(f"SET {k} = {repr(v)};")
 
         full_script = "\n".join(init_lines) + "\n" + script
 

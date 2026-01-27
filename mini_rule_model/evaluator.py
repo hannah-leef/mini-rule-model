@@ -15,31 +15,33 @@ def run_script(script: str):
             raw_value = cmd["value"]
 
             try:
-                value = eval(raw_value)
-            except:
-                value = raw_value
+                # evaluate using current variables as locals (no globals)
+                value = eval(raw_value, {}, variables)
+            except Exception:
+                # fallback: keep raw string (strip surrounding quotes if present)
+                value = raw_value.strip()
+                if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+                    value = value[1:-1]
 
             variables[cmd["variable"]] = value
 
         elif cmd["type"] == "if":
             condition = cmd["condition"]
-            action = cmd["action"]
+            action_var = cmd["action"]["variable"]
+            action_val_raw = cmd["action"]["value"]
 
             try:
                 if eval(condition, {}, variables):
-                    var, val = action.split("=")
-                    var = var.strip()
-                    val = val.strip()
-
                     try:
-                        val = eval(val, {}, variables)
+                        val = eval(action_val_raw, {}, variables)
+                    except Exception:
+                        val = action_val_raw.strip()
+                        if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+                            val = val[1:-1]
 
-                    except:
-                        pass
-
-                    variables[var] = val
+                    variables[action_var] = val
 
             except Exception as e:
-                print(f"Rule error: {e}")
+                print(f"Rule error evaluating condition '{condition}': {e}")
 
     return variables

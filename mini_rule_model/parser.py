@@ -10,22 +10,26 @@ def parse_script(script: str):
         if not line or line.startswith("#"):
             continue
 
-        if line.startswith("SET"):
-            match = re.match(r"SET\s+(\w+)\s*=\s*(.+);", line)
+        if line.upper().startswith("SET"):
+            match = re.match(r"SET\s+(\w+)\s*=\s*(.+);", line, flags=re.IGNORECASE)
             if match:
                 commands.append({
                     "type": "set",
                     "variable": match.group(1),
-                    "value": match.group(2)
+                    "value": match.group(2).strip()
                 })
 
-        elif line.startswith("IF"):
-            match = re.match(r"IF\s+(.+)\s+THEN\s+(.+);", line)
+        elif line.upper().startswith("IF"):
+            # parse condition and action (action broken into variable and value)
+            match = re.match(r"IF\s+(.+?)\s+THEN\s+(\w+)\s*=\s*(.+);", line, flags=re.IGNORECASE)
             if match:
                 commands.append({
                     "type": "if",
-                    "condition": match.group(1),
-                    "action": match.group(2)
+                    "condition": match.group(1).strip(),
+                    "action": {
+                        "variable": match.group(2),
+                        "value": match.group(3).strip()
+                    }
                 })
 
     return commands
