@@ -1,0 +1,7 @@
+# Example rule-based physiological simulation
+
+SET decrement = 5;
+SET oxygen_increase = 1;
+
+IF heart_rate > 100 THEN heart_rate = heart_rate - decrement;
+IF heart_rate <= 100 THEN oxygen = oxygen + oxygen_increase;
